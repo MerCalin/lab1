@@ -9,5 +9,11 @@
   },
   "dependencies": {
     "hono": "^4.13.13"
-  }
+  },
+  "scripts": {
+    "typecheck": "bun check",
+    "dev": "bun --watch src/index.tsx"
+  },
+  "module": "src/index.tsx",
+  "type": "module"
 }

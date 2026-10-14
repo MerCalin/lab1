@@ -20,4 +20,6 @@ app.get("/time", (c) => {
 });
 app.notFound((c) => c.json({ error: "Not found", path: c.req.path }, 404));
 
+app.get("/watch", (c) => c.text("I restarted on my own\n"));
+
 export default app; // Bun sees a default export with fetch() and serves it
