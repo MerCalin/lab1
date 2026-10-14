@@ -18,8 +18,16 @@ app.get("/time", (c) => {
   c.header("Cache-Control", "no-store");
   return c.json({ now: new Date().toISOString() });
 });
-app.notFound((c) => c.json({ error: "Not found", path: c.req.path }, 404));
 
-app.get("/watch", (c) => c.text("I restarted on my own\n"));
+app.get("/api/status", (c) => c.json({ ok: true, uptime: Math.round(process.uptime())}));
+app.get("/hello", (c) => c.html(`<h1>Hello, ${c.req.query("name") ?? "stranger"}!</h1>`));
+app.get("/teapot", (c) => {
+  c.header("X-Brewed-By", "Hono");
+  return c.text("I'm a teapot\n", 418);
+});
+app.get("/home", (c) => c.redirect("/"));
+
+
+app.notFound((c) => c.json({ error: "Not found", path: c.req.path }, 404));
 
 export default app; // Bun sees a default export with fetch() and serves it
