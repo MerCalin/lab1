@@ -7,6 +7,7 @@ import { team } from "./data";
 import { Layout } from "./view/Layout";
 import { serveStatic } from "@hono/bun";
 import { readdir } from "node:fs/promises";
+import { entrancesApi } from "./entrances";
 
 type Env = { Variables: { requestId: string } };
 const app = new Hono<Env>();
@@ -45,6 +46,7 @@ app.get("/home", (c) => c.redirect("/"));
 app.route("/strings", stringPages);
 
 app.route("/eta", etaPages);
+app.route("/api/entrances", entrancesApi); // step 9: the entrances API
 
 app.get("/", (c) => {
   const name = c.req.query("name") ?? "stranger";
@@ -56,7 +58,7 @@ app.get("/", (c) => {
   );
 });
 
-app.get("/team", (c) => 
+app.get("/team", (c) =>
   c.html(
     <Layout title = "Team">
       <h1>Team</h1>
