@@ -1,16 +1,19 @@
 // hono.ts — the same server with a framework
-import { Hono } from "hono";
-import { logger } from "hono/logger";
-import { stringPages } from "./string-pages";
-import { etaPages } from "./eta-pages";
-import { team } from "./data";
-import { Layout } from "./view/Layout";
-import { serveStatic } from "@hono/bun";
-import { readdir } from "node:fs/promises";
-import { entrancesApi } from "./entrances";
-import { cors } from "hono/cors";
 
-type Env = { Variables: { requestId: string } };
+import { readdir } from "node:fs/promises";
+import { serveStatic } from "@hono/bun";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
+import { team } from "./data";
+import { entrancesApi } from "./entrances";
+import { etaPages } from "./eta-pages";
+import { stringPages } from "./string-pages";
+import { Layout } from "./view/Layout";
+
+interface Env {
+  Variables: { requestId: string };
+}
 const app = new Hono<Env>();
 app.use(logger()); // one line: every request logged with status and time
 
@@ -26,20 +29,28 @@ app.use(async (c, next) => {
 
 app.use("/api/*", cors({ origin: "http://localhost:5173" }));
 
-app.use("*", serveStatic({root: "./public" }));
+app.use("*", serveStatic({ root: "./public" }));
 
 app.get("/echo", (c) => c.json({ hello: c.req.query("name") ?? "stranger" }));
 app.post("/echo", async (c) => {
   const body = await c.req.text();
-  return c.json({ youSent: body, contentType: c.req.header("content-type") });
+  return c.json({ contentType: c.req.header("content-type"), youSent: body });
 });
 app.get("/time", (c) => {
   c.header("Cache-Control", "no-store");
   return c.json({ now: new Date().toISOString() });
 });
 
-app.get("/api/status", (c) => c.json({ ok: true, uptime: Math.round(process.uptime()), requestId: c.get("requestId")}));
-app.get("/hello", (c) => c.html(`<h1>Hello, ${c.req.query("name") ?? "stranger"}!</h1>`));
+app.get("/api/status", (c) =>
+  c.json({
+    ok: true,
+    requestId: c.get("requestId"),
+    uptime: Math.round(process.uptime()),
+  })
+);
+app.get("/hello", (c) =>
+  c.html(`<h1>Hello, ${c.req.query("name") ?? "stranger"}!</h1>`)
+);
 app.get("/teapot", (c) => {
   c.header("X-Brewed-By", "Hono");
   return c.text("I'm a teapot\n", 418);
@@ -54,30 +65,33 @@ app.route("/api/entrances", entrancesApi); // step 9: the entrances API
 app.get("/", (c) => {
   const name = c.req.query("name") ?? "stranger";
   return c.html(
-    <Layout title = "Home">
+    <Layout title="Home">
       <h1>Hello, {name}!</h1>
       <p>The office side of the building survey.</p>
-    </Layout>,
+    </Layout>
   );
 });
 
 app.get("/team", (c) =>
   c.html(
-    <Layout title = "Team">
+    <Layout title="Team">
       <h1>Team</h1>
       <ul>
         {team.map((member) => {
-          <li>{member}</li>
+          <li>{member}</li>;
         })}
       </ul>
     </Layout>
-  ),
+  )
 );
 
 // step 7b: a page that lists a folder
 app.get("/files", async (c) => {
   const names = await readdir("./public");
-  const files = names.map((name) => ({ name, size: Bun.file(`./public/${name}`).size }));
+  const files = names.map((name) => ({
+    name,
+    size: Bun.file(`./public/${name}`).size,
+  }));
   return c.html(
     <Layout title="Files">
       <h1>public/</h1>
@@ -88,7 +102,7 @@ app.get("/files", async (c) => {
           </li>
         ))}
       </ul>
-    </Layout>,
+    </Layout>
   );
 });
 
@@ -101,8 +115,8 @@ app.notFound((c) =>
         No page at <code>{c.req.path}</code>. <a href="/">Back home</a>
       </p>
     </Layout>,
-    404,
-  ),
+    404
+  )
 );
 
 app.onError((err, c) => {
@@ -112,7 +126,7 @@ app.onError((err, c) => {
       <h1>Something broke</h1>
       <p>Request {c.get("requestId")} failed. It has been logged.</p>
     </Layout>,
-    500,
+    500
   );
 });
 

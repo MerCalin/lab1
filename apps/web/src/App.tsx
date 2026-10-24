@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
 import type { Entrance } from "@office/shared";
+import { useEffect, useState } from "react";
 import { EntranceForm } from "./EntranceForm";
-
 
 const API = "http://localhost:3000";
 
@@ -14,10 +13,10 @@ function EntranceItem({ entrance }: { entrance: Entrance }) {
   );
 }
 
-export default function App(){
+export default function App() {
   const [entrances, setEntrances] = useState<Entrance[]>([]);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     let ignore = false;
     fetch(`${API}/api/entrances`)
@@ -32,23 +31,23 @@ export default function App(){
           setError(err.message);
         }
       });
-      return () => {
-        ignore = true;
-      };
-    }, []);
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   return (
     <main>
       <h1>Entrances</h1>
 
       <EntranceForm
-        api = {API}
+        api={API}
         onCreated={(entrance) => setEntrances([...entrances, entrance])}
       />
-      {error && <p role = "alert">Could not load the entrances: {error}</p>}
+      {error && <p role="alert">Could not load the entrances: {error}</p>}
       <ul>
         {entrances.map((entrance) => (
-          <EntranceItem key={entrance.id} entrance={entrance} />
+          <EntranceItem entrance={entrance} key={entrance.id} />
         ))}
       </ul>
     </main>
