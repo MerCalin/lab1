@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Entrance } from "@office/shared";
+import { EntranceForm } from "./EntranceForm";
+
 
 const API = "http://localhost:3000";
 
@@ -38,6 +40,11 @@ export default function App(){
   return (
     <main>
       <h1>Entrances</h1>
+
+      <EntranceForm
+        api = {API}
+        onCreated={(entrance) => setEntrances([...entrances, entrance])}
+      />
       {error && <p role = "alert">Could not load the entrances: {error}</p>}
       <ul>
         {entrances.map((entrance) => (
