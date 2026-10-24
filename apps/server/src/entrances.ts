@@ -1,12 +1,6 @@
 // apps/server/src/entrances.ts — the entrances API, in memory until week 4
 import { Hono } from "hono";
-
-type Entrance = {
-    id: number;
-    address: string;
-    floors: number;
-    hasElevator: boolean;
-}
+import type { Entrance } from "@office/shared";
 
 const entrances: Entrance[] = [
     { id: 1, address: "123 Main St", floors: 5, hasElevator: true },
