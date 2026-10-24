@@ -1,8 +1,8 @@
 // apps/web/src/EntranceForm.tsx — a controlled form, validated by hand
-import type { Entrance } from "@office/shared";
+import { type Entrance, fieldErrors, NewEntrance } from "@office/shared";
 import { type FormEvent, useState } from "react";
 
-type Errors = Record<string, string>;
+type Errors = Partial<Record<string, string>>;
 
 export function EntranceForm({
     api,
@@ -18,25 +18,18 @@ export function EntranceForm({
 
     async function handleSubmit(e: FormEvent<HTMLFormElement>){
         e.preventDefault();
-        const found: Errors = {};
-        if (address.trim() === "") {
-            found.address = "Address is required";
-        }
-        if (!Number.isInteger(Number(floors)) || Number(floors) < 0){
-            found.floors = "Floors must be a whole number, 0 or more";
-        }
-        if (typeof(hasElevator) !== "boolean"){
-            found.hasElevator = "Say whether there is an elevator or not";
-        }
-
-        setErrors(found);
-        if (Object.keys(found).length > 0) {
+        
+        // the server's schema, run before anything leaves the browser
+        const result = NewEntrance.safeParse({address, floors:Number(floors), hasElevator});
+        if (!result.success) {
+            setErrors(fieldErrors(result.error));
             return;
         }
+        setErrors({});
         const res = await fetch(`${api}/api/entrances`, {
             method: "POST",
             headers: {"Content-Type" : "application/json"},
-            body: JSON.stringify({address, floors: Number(floors), hasElevator})
+            body: JSON.stringify(result.data)
         });
         const data = await res.json();
         if (!res.ok) {
@@ -54,7 +47,7 @@ export function EntranceForm({
                 Address
                 <input onChange={(e) => setAddress(e.target.value)} value={address} />
             </label>
-            {errors.address && <p className="error">{errors.address}</p>}
+            {errors.address && <p className="error">{errors.address[0]}</p>}
             <label>
                 Floors
                 <input
@@ -63,7 +56,7 @@ export function EntranceForm({
                     value={floors}
                 />
             </label>
-            {errors.floors && <p className="error">{errors.floors}</p>}
+            {errors.floors && <p className="error">{errors.floors[0]}</p>}
             <label>
                 Has an elevator
                 <input
