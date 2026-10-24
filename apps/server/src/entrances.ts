@@ -17,3 +17,5 @@ const entrances: Entrance[] = [
 export const entrancesApi = new Hono();
 
 entrancesApi.get("/", (c) => c.json(entrances));
+
+entrancesApi.get("/exit", )

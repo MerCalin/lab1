@@ -1,14 +1,13 @@
+import { useEffect, useState } from "react";
+
+const API = "http://localhost:3000";
+
 type Entrance =  {
   id: number;
   address: string;
   floors: number;
   hasElevator: boolean;
 };
-
-const sample: Entrance[] = [
-  { id: 1, address: "123 Main St", floors: 5, hasElevator: true },
-  { id: 2, address: "456 Elm St", floors: 3, hasElevator: false },
-];
 
 function EntranceItem({ entrance }: { entrance: Entrance }) {
   return (
@@ -20,11 +19,34 @@ function EntranceItem({ entrance }: { entrance: Entrance }) {
 }
 
 export default function App(){
+  const [entrances, setEntrances] = useState<Entrance[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    let ignore = false;
+    fetch(`${API}/api/entrances`)
+      .then((res) => res.json())
+      .then((data: Entrance[]) => {
+        if (!ignore) {
+          setEntrances(data);
+        }
+      })
+      .catch((err: Error) => {
+        if (!ignore) {
+          setError(err.message);
+        }
+      });
+      return () => {
+        ignore = true;
+      };
+    }, []);
+
   return (
     <main>
       <h1>Entrances</h1>
+      {error && <p role = "alert">Could not load the entrances: {error}</p>}
       <ul>
-        {sample.map((entrance) => (
+        {entrances.map((entrance) => (
           <EntranceItem key={entrance.id} entrance={entrance} />
         ))}
       </ul>
