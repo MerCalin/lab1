@@ -21,9 +21,10 @@ entrancesApi.post("/", async (c) => {
   }
 
   const entrance: Entrance = {
-    id: nextId++,
+    id: nextId,
     ...result.data,
   };
+  nextId += 1;
   entrances.push(entrance);
   return c.json(entrance, 201);
 });

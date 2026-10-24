@@ -77,9 +77,9 @@ app.get("/team", (c) =>
     <Layout title="Team">
       <h1>Team</h1>
       <ul>
-        {team.map((member) => {
-          <li>{member}</li>;
-        })}
+        {team.map((member) => (
+          <li>{member}</li>
+        ))}
       </ul>
     </Layout>
   )
