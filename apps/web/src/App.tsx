@@ -1,4 +1,4 @@
-import type { Entrance } from "@office/shared";
+import type { Building, Entrance } from "@office/shared";
 import { useEffect, useState } from "react";
 import { EntranceForm } from "./EntranceForm";
 
@@ -7,23 +7,26 @@ const API = "http://localhost:3000";
 function EntranceItem({ entrance }: { entrance: Entrance }) {
   return (
     <li>
-      {entrance.address} - {entrance.floors} floors
-      {entrance.hasElevator ? " (elevator)" : ""}
+      {entrance.address} ({entrance.buildingName}) — {entrance.floors} floors
     </li>
   );
 }
 
 export default function App() {
   const [entrances, setEntrances] = useState<Entrance[]>([]);
+  const [buildings, setBuildings] = useState<Building[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let ignore = false;
-    fetch(`${API}/api/entrances`)
-      .then((res) => res.json())
-      .then((data: Entrance[]) => {
+    Promise.all([
+      fetch(`${API}/api/entrances`).then((res) => res.json()),
+      fetch(`${API}/api/buildings`).then((res) => res.json()),
+    ])
+      .then(([entranceList, buildingList]: [Entrance[], Building[]]) => {
         if (!ignore) {
-          setEntrances(data);
+          setEntrances(entranceList);
+          setBuildings(buildingList);
         }
       })
       .catch((err: Error) => {
@@ -42,6 +45,7 @@ export default function App() {
 
       <EntranceForm
         api={API}
+        buildings={buildings}
         onCreated={(entrance) => setEntrances([...entrances, entrance])}
       />
       {error && <p role="alert">Could not load the entrances: {error}</p>}
