@@ -5,6 +5,7 @@ import { serveStatic } from "@hono/bun";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { buildingsApi } from "./buildings";
 import { team } from "./data";
 import { entrancesApi } from "./entrances";
 import { etaPages } from "./eta-pages";
@@ -61,6 +62,7 @@ app.route("/strings", stringPages);
 
 app.route("/eta", etaPages);
 app.route("/api/entrances", entrancesApi); // step 9: the entrances API
+app.route("/api/buildings", buildingsApi);
 
 app.get("/", (c) => {
   const name = c.req.query("name") ?? "stranger";
